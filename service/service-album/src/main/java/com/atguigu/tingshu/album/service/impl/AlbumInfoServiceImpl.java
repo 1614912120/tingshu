@@ -57,6 +57,11 @@ public class AlbumInfoServiceImpl extends ServiceImpl<AlbumInfoMapper, AlbumInfo
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void saveAlbumInfo(AlbumInfoVo albumInfoVo, Long userId) {
+		AlbumInfo albumInfo2 = BeanUtil.copyProperties(albumInfoVo, AlbumInfo.class);
+		if(albumInfo2.getId() !=null) {
+			Long id = albumInfo2.getId();
+			updateAlbumInfo( id,  albumInfoVo);
+		}
 		//1.向专辑信息表新增一条记录
 		//1.1 将前端提交专辑VO对象转为专辑PO对象
 		AlbumInfo albumInfo = BeanUtil.copyProperties(albumInfoVo, AlbumInfo.class);
@@ -130,6 +135,33 @@ public class AlbumInfoServiceImpl extends ServiceImpl<AlbumInfoMapper, AlbumInfo
 		albumInfo.setAlbumAttributeValueVoList(albumAttributeValues);
 		AlbumInfoVo albumInfoVo = BeanUtil.copyProperties(albumInfo, AlbumInfoVo.class);
 		return albumInfoVo;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void updateAlbumInfo(Long id, AlbumInfoVo albumInfoVo) {
+		//1.修改专辑信息
+		//1.1 将专辑VO转为PO对象
+		AlbumInfo albumInfo = BeanUtil.copyProperties(albumInfoVo, AlbumInfo.class);
+		albumInfo.setId(id);
+		//1.2 执行修改专辑信息
+		albumInfoMapper.updateById(albumInfo);
+
+		//2.修改专辑属性信息
+		//2.1 先根据专辑ID条件删除专辑属性关系(逻辑删除)
+		LambdaQueryWrapper<AlbumAttributeValue> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(AlbumAttributeValue::getAlbumId, id);
+		albumAttributeValueMapper.delete(queryWrapper);
+		//2.2 再根据用户提交专辑属性新增（关联专辑ID）
+		List<AlbumAttributeValueVo> albumAttributeValueVoList = albumInfoVo.getAlbumAttributeValueVoList();
+		if (CollectionUtil.isNotEmpty(albumAttributeValueVoList)) {
+			albumAttributeValueVoList.forEach(albumAttributeValueVo -> {
+				//转为PO对象 关联专辑ID
+				AlbumAttributeValue albumAttributeValue = BeanUtil.copyProperties(albumAttributeValueVo, AlbumAttributeValue.class);
+				albumAttributeValue.setAlbumId(id);
+				albumAttributeValueMapper.insert(albumAttributeValue);
+			});
+		}
 	}
 
 }

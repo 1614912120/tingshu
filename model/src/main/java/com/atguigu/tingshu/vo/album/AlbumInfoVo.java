@@ -70,6 +70,7 @@ public class AlbumInfoVo {
 	@Schema(description = "专辑卖点，富文本")
 	private String sellingPoint;
 
+
 	@Schema(description = "是否公开：0-否 1-是")
 	private String isOpen;
 

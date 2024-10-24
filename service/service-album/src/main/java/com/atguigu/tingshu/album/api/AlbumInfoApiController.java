@@ -86,5 +86,24 @@ public class AlbumInfoApiController {
 		return Result.ok(albumInfo);
 	}
 
+
+
+	/**
+	 * TODO 该接口必须登录才能访问
+	 * 专辑修改
+	 * @param id 专辑ID
+	 * @param albumInfoVo 修改后专辑信息
+	 * @return
+	 */
+	@Operation(summary = "修改专辑")
+	@PutMapping("/albumInfo/updateAlbumInfo/{id}")
+	public Result updateAlbumInfo(@PathVariable("id") Long id, @RequestBody AlbumInfoVo albumInfoVo){
+		albumInfoService.updateAlbumInfo(id, albumInfoVo);
+		return Result.ok();
+	}
+
+
+
+
 }
 

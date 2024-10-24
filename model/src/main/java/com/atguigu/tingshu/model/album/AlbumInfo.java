@@ -56,6 +56,8 @@ public class AlbumInfo extends BaseEntity {
 	@TableField("quality_score")
 	private String qualityScore;
 
+
+
 	@Schema(description = "付费类型: 0101-免费、0102-vip免费、0103-付费")
 	@TableField("pay_type")
 	private String payType;
