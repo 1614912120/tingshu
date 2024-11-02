@@ -1,6 +1,7 @@
 package com.atguigu.tingshu.album.api;
 
 import com.atguigu.tingshu.album.service.AlbumInfoService;
+import com.atguigu.tingshu.common.login.GuiGuLogin;
 import com.atguigu.tingshu.common.result.Result;
 import com.atguigu.tingshu.common.util.AuthContextHolder;
 import com.atguigu.tingshu.model.album.AlbumInfo;
@@ -11,6 +12,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.http.auth.AUTH;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import java.util.List;
 @SuppressWarnings({"all"})
 public class AlbumInfoApiController {
 
+	private static final Logger log = LoggerFactory.getLogger(AlbumInfoApiController.class);
 	@Autowired
 	private AlbumInfoService albumInfoService;
 
@@ -49,11 +53,14 @@ public class AlbumInfoApiController {
 	 * @param albumInfoQuery 分页查询条件
 	 * @return
 	 */
+	@GuiGuLogin
 	@Operation(summary = "分页查询当前用户专辑列表")
 	@PostMapping("/albumInfo/findUserAlbumPage/{page}/{limit}")
 	public Result<Page<AlbumListVo>> getUserAlbumByPage(@PathVariable int page, @PathVariable int limit,
 														@RequestBody AlbumInfoQuery albumInfoQuery){
+		log.info("getUserAlbumByPage执行");
 		Long userId = AuthContextHolder.getUserId();
+		System.out.println("id============"+userId);
 		albumInfoQuery.setUserId(userId);
 
 		Page<AlbumListVo> pageInfo = new Page<>(page, limit);
