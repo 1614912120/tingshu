@@ -164,4 +164,14 @@ public class AlbumInfoServiceImpl extends ServiceImpl<AlbumInfoMapper, AlbumInfo
 		}
 	}
 
+	@Override
+	public List<AlbumInfo> getUserAllAlbumList(Long userId) {
+		LambdaQueryWrapper<AlbumInfo> albumInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+		albumInfoLambdaQueryWrapper.eq(AlbumInfo::getUserId,userId)
+				.select(AlbumInfo::getUserId,AlbumInfo::getAlbumTitle)
+				.orderByDesc(AlbumInfo::getCreateTime)
+				.last("limit 200");
+		return albumInfoMapper.selectList(albumInfoLambdaQueryWrapper);
+	}
+
 }
