@@ -12,4 +12,6 @@ public interface UserInfoService extends IService<UserInfo> {
 
     UserInfoVo getUserInfoVoByUserId(Long userId);
 
+    void updateUser(UserInfoVo userInfoVo, Long userId);
+
 }

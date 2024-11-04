@@ -4,7 +4,9 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
+import com.atguigu.tingshu.common.constant.KafkaConstant;
 import com.atguigu.tingshu.common.constant.RedisConstant;
+import com.atguigu.tingshu.common.service.KafkaService;
 import com.atguigu.tingshu.model.user.UserInfo;
 import com.atguigu.tingshu.user.mapper.UserInfoMapper;
 import com.atguigu.tingshu.user.service.UserInfoService;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -37,12 +40,17 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     @Autowired
     private RedisTemplate redisTemplate;
 
+
+	@Autowired
+	private KafkaService kafkaService;
+
 	@Override
 	public Map<String, String> wxLogin(String code) {
 		try {
 			WxMaJscode2SessionResult sessionInfo = wxMaService.getUserService().getSessionInfo(code);
 			if(sessionInfo != null) {
-				String openid = sessionInfo.getOpenid();
+				//String openid = sessionInfo.getOpenid();
+				String openid = "odo3j4q2KskkbbW-krfE-cAxUnzW";
 				//2.根据openId查询用户记录  TODO 固定写死OpenID odo3j4q2KskkbbW-krfE-cAxUnzU
 				LambdaQueryWrapper<UserInfo> userInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
 				userInfoLambdaQueryWrapper.eq(UserInfo::getWxOpenId,openid);
@@ -53,6 +61,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 					userInfo.setNickname("听友"+ IdUtil.getSnowflake().nextId());
 					userInfoMapper.insert(userInfo);
 					//TODO 发送异步MQ消息，通知账户微服务初始化当前用户账户余额信息
+					kafkaService.sendMessage(KafkaConstant.QUEUE_USER_REGISTER,userInfo.getId().toString());
 				}
 				//2.2 根据OpenID获取到用户记录，
 
@@ -82,5 +91,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 			return userInfoVo;
 		}
 		return null;
+	}
+
+	@Override
+	public void updateUser(UserInfoVo userInfoVo, Long userId) {
+		UserInfo userInfo = new UserInfo();
+		userInfo.setId(userId);
+		userInfo.setNickname(userInfoVo.getNickname());
+		userInfo.setAvatarUrl(userInfoVo.getAvatarUrl());
+		userInfoMapper.updateById(userInfo);
 	}
 }

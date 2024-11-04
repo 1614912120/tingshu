@@ -6,4 +6,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface UserAccountService extends IService<UserAccount> {
 
 
+    void saveUserAccount(Long aLong);
+
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -16,4 +17,11 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
 	@Autowired
 	private UserAccountMapper userAccountMapper;
 
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void saveUserAccount(Long aLong) {
+		UserAccount userAccount = new UserAccount();
+		userAccount.setUserId(aLong);
+		userAccountMapper.insert(userAccount);
+	}
 }
