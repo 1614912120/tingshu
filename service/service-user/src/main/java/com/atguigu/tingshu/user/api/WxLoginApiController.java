@@ -39,6 +39,7 @@ public class WxLoginApiController {
     }
 
 
+    @GuiGuLogin
     @Operation(summary = "更新用户信息")
     @PostMapping("/updateUser")
     public Result updateUser(@RequestBody UserInfoVo userInfoVo) {
